@@ -18,4 +18,6 @@ func GetUser(w http.ResponseWriter, r http.Request) (models.User, error) {
 	if err != nil || session.UserID == 0 {
 		return user, err
 	}
+
+	user, err 
 }
