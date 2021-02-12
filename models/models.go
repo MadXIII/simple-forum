@@ -1,4 +1,4 @@
-package structs
+package models
 
 import (
 	"html/template"
@@ -7,7 +7,8 @@ import (
 
 type User struct {
 	UserID   int
-	Password string
+	Salt     string
+	Hash     []byte
 	Username string
 	Email    string
 }
@@ -20,16 +21,17 @@ type Post struct {
 	Content    template.HTML
 	Categories []string
 	// CommentCount int
-	DateTime time.Time
-	// TimeString  string
-	Like     int
-	Dislike  int
-	Liked    bool
-	Disliked bool
+	DateTime   time.Time
+	TimeString string
+	Like       int
+	Dislike    int
+	Liked      bool
+	Disliked   bool
 }
 type Session struct {
-	SessionID string
-	UserID    int
+	SessionID   string
+	UserID      int
+	TimeCreated time.Time
 }
 type PageData struct {
 	PageTitle  string
@@ -38,14 +40,14 @@ type PageData struct {
 	Data       interface{}
 }
 type Comment struct {
-	CommentID int
-	PostID    int
-	Username  string
-	Text      template.HTML
-	DateTime  time.Time
-	// TimeString  string
-	Like     int
-	Dislike  int
-	Liked    bool
-	Disliked bool
+	CommentID  int
+	PostID     int
+	Username   string
+	Text       template.HTML
+	DateTime   time.Time
+	TimeString string
+	Like       int
+	Dislike    int
+	Liked      bool
+	Disliked   bool
 }

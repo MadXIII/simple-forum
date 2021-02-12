@@ -19,7 +19,8 @@ func SetUp() {
 	usersTable := `CREATE TABLE IF NOT EXISTS users (
 		userid INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 		username TEXT NOT NULL UNIQUE,
-		password TEXT NOT NULL,
+		hash BLOB NOT NULL,
+		salt TEXT NOT NULL,
 		email TEXT NOT NULL UNIQUE
 	);`
 	createUsersTable, err := db.Prepare(usersTable)
@@ -53,6 +54,18 @@ func SetUp() {
 	_, err = createCategoryTable.Exec()
 	errorhandle.CheckErr(err)
 
+	forumCategories := []string{
+		"Sport",
+		"Movies",
+		"Music",
+		"Other",
+	}
+	for _, category := range forumCategories {
+		err = CreateCategory(category)
+		if err != nil && err != ErrExists {
+			errorhandle.CheckErr(err)
+		}
+	}
 	postCategoriesTable := `CREATE TABLE IF NOT EXISTS postcategories (
 		postid INTEGER NOT NULL,
 		categoryid INTEGER NOT NULL,
@@ -83,6 +96,7 @@ func SetUp() {
 	sessionTable := `CREATE TABLE IF NOT EXISTS sessions (
 		sessionid INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 		userid INTEGER NOT NULL UNIQUE,
+		timecreated TIMESTAMP NOT NULL,
 		FOREIGN KEY (userid) REFERENCES users(userid)
 	);`
 
@@ -115,15 +129,4 @@ func SetUp() {
 	errorhandle.CheckErr(err)
 	_, err = createCommentLikesTable.Exec()
 	errorhandle.CheckErr(err)
-
-	forumCategories := []string{
-		"Sport",
-		"Movies",
-		"Music",
-	}
-	for _, category := range forumCategories {
-		err = CreateCategory(category)
-		errorhandle.CheckErr(err)
-	}
-
 }

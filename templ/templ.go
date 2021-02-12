@@ -1,4 +1,4 @@
-package front
+package templ
 
 import (
 	"forum/errorhandle"
