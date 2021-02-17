@@ -3,7 +3,8 @@ package main
 import (
 	"forum/database"
 	"forum/errorhandle"
-	"forum/front"
+	"forum/router"
+	"forum/templ"
 	"log"
 	"net/http"
 	"os"
@@ -11,14 +12,18 @@ import (
 
 func init() {
 	database.SetUp()
-	front.SetUp()
+	templ.SetUp()
 }
 func main() {
+	defer database.Close()
+
+	mux := router.ServeMux()
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8888"
 	}
 
 	log.Println("Server is listening:", port)
-	errorhandle.CheckErr(http.ListenAndServe(":"+port, nil))
+	errorhandle.CheckErr(http.ListenAndServe(":"+port, mux))
 }

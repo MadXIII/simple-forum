@@ -14,7 +14,6 @@ var db *sql.DB
 func SetUp() {
 	db, err = sql.Open("sqlite3", "./database.db")
 	errorhandle.CheckErr(err)
-	defer db.Close()
 
 	usersTable := `CREATE TABLE IF NOT EXISTS users (
 		userid INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
@@ -34,11 +33,12 @@ func SetUp() {
 		username TEXT NOT NULL,
 		title TEXT NOT NULL,
 		content TEXT NOT NULL,
+		imageexist  BYTE NOT NULL,
 		date_time TIMESTAMP NOT NULL,
+		timestring  TEXT NOT NULL,
 		FOREIGN KEY (userid) REFERENCES users(userid),
 		FOREIGN KEY (username) REFERENCES users(username)
 	);`
-	// timestring  TEXT NOT NULL,
 
 	createPostsTable, err := db.Prepare(postsTable)
 	errorhandle.CheckErr(err)
@@ -67,10 +67,10 @@ func SetUp() {
 		}
 	}
 	postCategoriesTable := `CREATE TABLE IF NOT EXISTS postcategories (
-		postid INTEGER NOT NULL,
 		categoryid INTEGER NOT NULL,
-		FOREIGN KEY (postid) REFERENCES posts(postid),
-		FOREIGN KEY (categoryid) REFERENCES categories(categoryid)
+		postid INTEGER NOT NULL,
+		FOREIGN KEY (categoryid) REFERENCES categories(categoryid),
+		FOREIGN KEY (postid) REFERENCES posts(postid)
 	);`
 	createPostCategoriesTable, err := db.Prepare(postCategoriesTable)
 	errorhandle.CheckErr(err)
@@ -82,11 +82,12 @@ func SetUp() {
 		postid INTEGER NOT NULL,
 		username TEXT NOT NULL,
 		text TEXT NOT NULL,
+		imageexist  BYTE NOT NULL,
 		date_time TIMESTAMP NOT NULL,
+		timestring  TEXT NOT NULL,
 		FOREIGN KEY (postid) REFERENCES posts(postid),
 		FOREIGN KEY (username) REFERENCES users(username)
 	);`
-	// timestring  TEXT NOT NULL,
 
 	createCommentTabel, err := db.Prepare(commentTable)
 	errorhandle.CheckErr(err)
@@ -120,7 +121,7 @@ func SetUp() {
 	commentLikesTable := `CREATE TABLE IF NOT EXISTS commentlikes (
 		userid INTEGER NOT NULL,
 		commentid INTEGER NOT NULL,
-		likes INTEGER NOT NULL,
+		liked INTEGER NOT NULL,
 		FOREIGN KEY (userid) REFERENCES users(userid),
 		FOREIGN KEY (commentid) REFERENCES comments(commentid)
 	);`

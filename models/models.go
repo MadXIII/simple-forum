@@ -1,7 +1,6 @@
 package models
 
 import (
-	"html/template"
 	"time"
 )
 
@@ -14,19 +13,20 @@ type User struct {
 }
 
 type Post struct {
-	PostID     int
-	UserID     int
-	Username   string
-	Title      string
-	Content    template.HTML
-	Categories []string
-	// CommentCount int
-	DateTime   time.Time
-	TimeString string
-	Like       int
-	Dislike    int
-	Liked      bool
-	Disliked   bool
+	PostID       int
+	UserID       int
+	Username     string
+	Title        string
+	Content      string
+	Categories   []string
+	ImageExist   bool
+	CommentCount int
+	DateTime     time.Time
+	TimeString   string
+	Like         int
+	Dislike      int
+	Liked        bool
+	Disliked     bool
 }
 type Session struct {
 	SessionID   string
@@ -43,7 +43,8 @@ type Comment struct {
 	CommentID  int
 	PostID     int
 	Username   string
-	Text       template.HTML
+	Text       string
+	ImageExist bool
 	DateTime   time.Time
 	TimeString string
 	Like       int

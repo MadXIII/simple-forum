@@ -23,3 +23,17 @@ func CreateSession(newSession models.Session) error {
 	}
 	return err
 }
+
+func GetSession(sessionID string) (models.Session, error) {
+	var session models.Session
+
+	if err := db.QueryRow(`
+		SELECT *
+		FROM sessions
+		WHERE sessionid = ?
+	`, sessionID).Scan(&session.SessionID, &session.UserID, &session.TimeCreated); err != nil {
+		return session, err
+	}
+
+	return session, err
+}

@@ -28,29 +28,29 @@ func Register(w http.ResponseWriter, r *http.Request, data models.PageData) {
 
 		if newUser.Username == "" {
 			data.Data = "Invalid username"
-			w.WriteHeader(http.StatusCreated)
+			// w.WriteHeader(http.StatusCreated)
 			InternalError(w, r, templ.ExecTemplate(w, "register.html", data))
 			return
 		}
 		if usernameExists {
 			data.Data = "Username exists"
-			w.WriteHeader(http.StatusCreated)
+			// w.WriteHeader(http.StatusCreated)
 			InternalError(w, r, templ.ExecTemplate(w, "register.html", data))
 			return
 		}
 		if newUser.Email == "" || !regex.MatchString(newUser.Username) {
 			data.Data = "Invalid email"
-			w.WriteHeader(http.StatusCreated)
+			// w.WriteHeader(http.StatusCreated)
 			InternalError(w, r, templ.ExecTemplate(w, "register.html", data))
 		}
 		if emailExists {
 			data.Data = "Email exists"
-			w.WriteHeader(http.StatusCreated)
+			// w.WriteHeader(http.StatusCreated)
 			InternalError(w, r, templ.ExecTemplate(w, "register.html", data))
 		}
 		if !isValidPass(password) {
 			data.Data = "Password must have min 8 characters: at least 1 upper case, 1 lower case, 1 number"
-			w.WriteHeader(http.StatusCreated)
+			// w.WriteHeader(http.StatusCreated)
 			InternalError(w, r, templ.ExecTemplate(w, "register.html", data))
 		}
 		salt := uuid.NewV4().String()
@@ -67,8 +67,7 @@ func Register(w http.ResponseWriter, r *http.Request, data models.PageData) {
 			return
 		}
 		http.Redirect(w, r, "/", http.StatusFound)
-	}
-	if r.Method == http.MethodGet {
+	} else if r.Method == http.MethodGet {
 		InternalError(w, r, templ.ExecTemplate(w, "register.html", data))
 	} else {
 		ErrorHandler(w, r, http.StatusMethodNotAllowed, "405 Method Not Allowed")

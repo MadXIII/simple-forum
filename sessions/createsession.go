@@ -11,14 +11,14 @@ import (
 
 func CreateSession(uid int, w http.ResponseWriter) error {
 	sid := uuid.NewV4().String()
-	cook := &http.Cookie{
+	ck := &http.Cookie{
 		Name:   "session",
 		Value:  sid,
 		MaxAge: 86400,
 		Path:   "/",
 	}
 	session := models.Session{
-		SessionID:   cook.Value,
+		SessionID:   ck.Value,
 		UserID:      uid,
 		TimeCreated: time.Now(),
 	}
@@ -26,6 +26,6 @@ func CreateSession(uid int, w http.ResponseWriter) error {
 	if err != nil {
 		return err
 	}
-	http.SetCookie(w, cook)
+	http.SetCookie(w, ck)
 	return nil
 }
