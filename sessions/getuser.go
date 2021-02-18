@@ -11,7 +11,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) (models.User, error) {
 
 	ck, err := r.Cookie("session")
 	if err != nil {
-		return user, err
+		return user, nil
 	}
 	session, err := database.GetSession(ck.Value)
 
@@ -20,7 +20,6 @@ func GetUser(w http.ResponseWriter, r *http.Request) (models.User, error) {
 	}
 
 	user, err = database.GetUserByID(session.UserID)
-
 	if err != nil || user.UserID == 0 {
 		return user, err
 	}

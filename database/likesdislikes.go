@@ -13,14 +13,22 @@ func LikePost(uid int, postid int) error {
 	if err != nil {
 		return err
 	}
-	liked := 2
-	if err = db.QueryRow(`
+	row, err := db.Query(`
 		SELECT *
 		FROM postlikes
 		WHERE (userid = ? AND postid = ?)
-	`, uid, postid).Scan(&uid, &postid, &liked); err != nil {
+	`, uid, postid)
+	defer row.Close()
+
+	if err != nil {
 		return err
 	}
+
+	liked := 2
+	for row.Next() {
+		row.Scan(&uid, &postid, &liked)
+	}
+
 	if liked == 0 {
 		like, err = db.Prepare(`
 			UPDATE postlikes
@@ -59,13 +67,20 @@ func DislikePost(uid int, postid int) error {
 		return err
 	}
 
-	liked := 2
-	if err = db.QueryRow(`
+	row, err := db.Query(`
 		SELECT *
 		FROM postlikes
 		WHERE (userid = ? AND postid = ?)
-	`, uid, postid).Scan(&uid, &postid, &liked); err != nil {
+	`, uid, postid)
+	defer row.Close()
+
+	if err != nil {
 		return err
+	}
+
+	liked := 2
+	for row.Next() {
+		row.Scan(&uid, &postid, &liked)
 	}
 
 	if liked == 1 {
@@ -97,7 +112,7 @@ func DislikePost(uid int, postid int) error {
 	return err
 }
 
-func LikeComment(uid int, postid int) error {
+func LikeComment(uid int, commentid int) error {
 	like, err := db.Prepare(`
 		INSERT INTO commentlikes
 		(userid, commentid, liked)
@@ -107,28 +122,35 @@ func LikeComment(uid int, postid int) error {
 		return err
 	}
 
-	liked := 2
-	if err = db.QueryRow(`
+	row, err := db.Query(`
 		SELECT *
 		FROM commentlikes
-		WHERE (userid = ? AND postid = ?)
-	`, uid, postid).Scan(&uid, &postid, &liked); err != nil {
+		WHERE (userid = ? AND commentid = ?)
+	`, uid, commentid)
+	defer row.Close()
+
+	if err != nil {
 		return err
 	}
 
-	if liked == 1 {
+	liked := 2
+	for row.Next() {
+		row.Scan(&uid, &commentid, &liked)
+	}
+
+	if liked == 0 {
 		like, err = db.Prepare(`
 			UPDATE commentlikes
 			SET liked = 1
-			WHERE (userid = ? AND postid = ?)
+			WHERE (userid = ? AND commentid = ?)
 		`)
 		if err != nil {
 			return err
 		}
-	} else if liked == 0 {
+	} else if liked == 1 {
 		like, err = db.Prepare(`
 			DELETE FROM commentlikes
-			WHERE (userid = ? AND postid = ?)
+			WHERE (userid = ? AND commentid = ?)
 		`)
 		if err != nil {
 			return err
@@ -136,43 +158,52 @@ func LikeComment(uid int, postid int) error {
 	}
 	_, err = like.Exec(
 		uid,
-		postid,
+		commentid,
 	)
 	if err != nil {
 		return err
 	}
 	return err
 }
-func DislikeComment(uid int, postid int) error {
+
+func DislikeComment(uid int, commentid int) error {
 	dislike, err := db.Prepare(`
 		INSERT INTO commentlikes
-		(userid, postid, liked)
+		(userid, commentid, liked)
 		VALUES (?, ?, 0);
 	`)
 	if err != nil {
 		return err
 	}
-	liked := 2
-	if err = db.QueryRow(`
+	row, err := db.Query(`
 		SELECT *
 		FROM commentlikes
-		WHERE (userid = ? AND postid = ?)
-	`, uid, postid).Scan(&uid, &postid, &liked); err != nil {
+		WHERE (userid = ? AND commentid = ?)
+	`, uid, commentid)
+	defer row.Close()
+
+	if err != nil {
 		return err
 	}
+
+	liked := 2
+	for row.Next() {
+		row.Scan(&uid, &commentid, &liked)
+	}
+
 	if liked == 1 {
 		dislike, err = db.Prepare(`
 			UPDATE commentlikes
 			SET liked = 0
-			WHERE (userid = ? AND postid = ?)
+			WHERE (userid = ? AND commentid = ?)
 		`)
 		if err != nil {
 			return err
 		}
 	} else if liked == 0 {
 		dislike, err = db.Prepare(`
-			DELET FROM commentlikes
-			WHERE (userid = ? AND postid = ?)
+			DELETE FROM commentlikes
+			WHERE (userid = ? AND commentid = ?)
 		`)
 		if err != nil {
 			return err
@@ -180,50 +211,81 @@ func DislikeComment(uid int, postid int) error {
 	}
 	_, err = dislike.Exec(
 		uid,
-		postid,
+		commentid,
 	)
 	if err != nil {
 		return err
 	}
 	return err
 }
+
 func getPostLikesDislikes(post *models.Post) error {
-	if err := db.QueryRow(`
+	likes, err := db.Query(`
 		SELECT COUNT(*)
 		FROM postlikes
-		WHERE (posid = ? AND liked = 1)
-	`, post.PostID).Scan(&post.Like); err != nil {
+		WHERE (postid = ? AND liked = 1)
+	`, post.PostID)
+	defer likes.Close()
+
+	if err != nil {
 		return err
 	}
 
-	if err := db.QueryRow(`
+	for likes.Next() {
+		likes.Scan(&post.Like)
+	}
+
+	dislikes, err := db.Query(`
 		SELECT COUNT(*)
 		FROM postlikes
-		WHERE (postid = ? AND liked = 0)
-	`, post.PostID).Scan(&post.Dislike); err != nil {
+		WHERE (postid = ? AND liked = 1)
+	`, post.PostID)
+	defer dislikes.Close()
+
+	if err != nil {
 		return err
 	}
-	return nil
+
+	for dislikes.Next() {
+		dislikes.Scan(&post.Dislike)
+	}
+	return err
 }
+
 func getCommentLikesDislikes(comment *models.Comment) error {
-	if err := db.QueryRow(`
+	likes, err := db.Query(`
 		SELECT COUNT(*)
 		FROM commentlikes
 		WHERE (commentid = ? AND liked = 1)
-	`, comment.CommentID).Scan(&comment.Like); err != nil {
+	`, comment.CommentID)
+	defer likes.Close()
+
+	if err != nil {
 		return err
 	}
 
-	if err = db.QueryRow(`
+	for likes.Next() {
+		likes.Scan(&comment.Like)
+	}
+
+	dislikes, err := db.Query(`
 		SELECT COUNT(*)
 		FROM commentlikes
-		WHERE (commentid = ? AND liked = 0)
-	`, comment.CommentID).Scan(&comment.Dislike); err != nil {
+		WHERE (commentid = ? AND liked = 1)
+	`, comment.CommentID)
+	defer dislikes.Close()
+
+	if err != nil {
 		return err
+	}
+
+	for dislikes.Next() {
+		dislikes.Scan(&comment.Dislike)
 	}
 
 	return err
 }
+
 func postLikedByUser(post *models.Post, uid int) error {
 	row, err := db.Query(`
 		SELECT *
@@ -247,6 +309,7 @@ func postDislikedByUser(post *models.Post, uid int) error {
 		FROM postlikes
 		WHERE (userid = ? AND postid = ? AND liked = 0)
 	`, uid, post.PostID)
+	defer row.Close()
 
 	if err != nil {
 		return err

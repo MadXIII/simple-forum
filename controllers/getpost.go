@@ -86,16 +86,15 @@ func GetPostsByCategory(w http.ResponseWriter, r *http.Request, data models.Page
 				ErrorHandler(w, r, http.StatusNotFound, "404 Not Found")
 				return
 			}
-
-			posts, err := database.GetPostsByCategory(category, data.User.UserID)
-			if InternalError(w, r, err) {
-				return
-			}
-
-			data.PageTitle = category
-			data.Data = postData{r.URL.Path, posts}
-			InternalError(w, r, templ.ExecTemplate(w, "posts.html", data))
 		}
+		posts, err := database.GetPostsByCategory(category, data.User.UserID)
+		if InternalError(w, r, err) {
+			return
+		}
+
+		data.PageTitle = category
+		data.Data = postData{r.URL.Path, posts}
+		InternalError(w, r, templ.ExecTemplate(w, "posts.html", data))
 	} else {
 		ErrorHandler(w, r, http.StatusMethodNotAllowed, "405 Method Not Allowed")
 	}

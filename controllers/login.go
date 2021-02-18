@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"forum/database"
 	"forum/models"
 	"forum/sessions"
@@ -17,6 +18,7 @@ func Login(w http.ResponseWriter, r *http.Request, data models.PageData) {
 	if r.Method == http.MethodPost {
 		username := r.FormValue("username")
 		password := r.FormValue("password")
+		fmt.Println(password)
 
 		usernameExists := database.IsUsernameExists(username)
 		emailExists := database.IsEmailExists(username)
@@ -24,16 +26,22 @@ func Login(w http.ResponseWriter, r *http.Request, data models.PageData) {
 		if !strings.ContainsRune(username, '@') {
 			if !usernameExists {
 				data.Data = "Invalid Username"
+				w.WriteHeader(http.StatusUnprocessableEntity)
 				InternalError(w, r, templ.ExecTemplate(w, "login.html", data))
+				return
 			}
 			user, err := database.GetUserByUsername(username)
 			if InternalError(w, r, err) {
 				return
 			}
 			err = bcrypt.CompareHashAndPassword(user.Hash, []byte(password+user.Salt))
+			fmt.Println(user.Hash)
+			fmt.Println([]byte(password + user.Salt))
 			if err != nil {
 				data.Data = "Wrong password"
+				w.WriteHeader(http.StatusUnauthorized)
 				InternalError(w, r, templ.ExecTemplate(w, "login.html", data))
+				return
 			}
 			err = sessions.CreateSession(user.UserID, w)
 			if InternalError(w, r, err) {
@@ -42,18 +50,28 @@ func Login(w http.ResponseWriter, r *http.Request, data models.PageData) {
 		} else {
 			if !emailExists {
 				data.Data = "Invalid email"
+				w.WriteHeader(http.StatusUnprocessableEntity)
 				InternalError(w, r, templ.ExecTemplate(w, "login.html", data))
+				return
 			}
 			user, err := database.GetUserByEmail(username)
 			if InternalError(w, r, err) {
 				return
 			}
 			err = bcrypt.CompareHashAndPassword(user.Hash, []byte(password+user.Salt))
+			if err != nil {
+				data.Data = "Wrong password"
+				w.WriteHeader(http.StatusUnauthorized)
+				InternalError(w, r, templ.ExecTemplate(w, "login.html", data))
+				return
+			}
 			err = sessions.CreateSession(user.UserID, w)
 			if InternalError(w, r, err) {
 				return
 			}
 		}
+		http.Redirect(w, r, "/", http.StatusFound)
+
 	} else if r.Method == http.MethodGet {
 		InternalError(w, r, templ.ExecTemplate(w, "login.html", data))
 	} else {

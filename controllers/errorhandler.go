@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"forum/database"
 	"forum/models"
 	"forum/sessions"
@@ -10,6 +11,7 @@ import (
 
 func InternalError(w http.ResponseWriter, r *http.Request, err error) bool {
 	if err != nil {
+		fmt.Println(err)
 		ErrorHandler(w, r, http.StatusInternalServerError, "500 Internal Error")
 		return true
 	}

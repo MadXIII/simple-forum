@@ -1,8 +1,10 @@
 package controllers
 
 import (
+	"fmt"
 	"forum/database"
 	"forum/models"
+	"forum/sessions"
 	"forum/templ"
 	"net/http"
 	"regexp"
@@ -28,45 +30,56 @@ func Register(w http.ResponseWriter, r *http.Request, data models.PageData) {
 
 		if newUser.Username == "" {
 			data.Data = "Invalid username"
-			// w.WriteHeader(http.StatusCreated)
+			w.WriteHeader(http.StatusUnprocessableEntity)
 			InternalError(w, r, templ.ExecTemplate(w, "register.html", data))
 			return
 		}
 		if usernameExists {
 			data.Data = "Username exists"
-			// w.WriteHeader(http.StatusCreated)
+			w.WriteHeader(http.StatusUnprocessableEntity)
 			InternalError(w, r, templ.ExecTemplate(w, "register.html", data))
 			return
 		}
-		if newUser.Email == "" || !regex.MatchString(newUser.Username) {
+		if newUser.Email == "" || !regex.MatchString(newUser.Email) {
 			data.Data = "Invalid email"
-			// w.WriteHeader(http.StatusCreated)
+			w.WriteHeader(http.StatusUnprocessableEntity)
 			InternalError(w, r, templ.ExecTemplate(w, "register.html", data))
+			return
 		}
 		if emailExists {
 			data.Data = "Email exists"
-			// w.WriteHeader(http.StatusCreated)
+			w.WriteHeader(http.StatusUnprocessableEntity)
 			InternalError(w, r, templ.ExecTemplate(w, "register.html", data))
+			return
 		}
 		if !isValidPass(password) {
 			data.Data = "Password must have min 8 characters: at least 1 upper case, 1 lower case, 1 number"
-			// w.WriteHeader(http.StatusCreated)
+			w.WriteHeader(http.StatusUnprocessableEntity)
 			InternalError(w, r, templ.ExecTemplate(w, "register.html", data))
+			return
 		}
-		salt := uuid.NewV4().String()
+		salt := uuid.NewV4()
 
-		hash, err := bcrypt.GenerateFromPassword([]byte(password+salt), bcrypt.MinCost)
+		hash, err := bcrypt.GenerateFromPassword([]byte(password+salt.String()), bcrypt.MinCost)
 		if InternalError(w, r, err) {
 			return
 		}
-		newUser.Salt = salt
+		newUser.Salt = salt.String()
 		newUser.Hash = hash
+
+		fmt.Println(newUser.Hash)
+		fmt.Println(newUser.Salt)
 
 		err = database.CreateUser(&newUser)
 		if InternalError(w, r, err) {
 			return
 		}
+		err = sessions.CreateSession(newUser.UserID, w)
+		if InternalError(w, r, err) {
+			return
+		}
 		http.Redirect(w, r, "/", http.StatusFound)
+
 	} else if r.Method == http.MethodGet {
 		InternalError(w, r, templ.ExecTemplate(w, "register.html", data))
 	} else {

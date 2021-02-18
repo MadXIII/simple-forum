@@ -33,12 +33,18 @@ func CreateComment(newComment *models.Comment) error {
 }
 
 func getPostCommentCount(post *models.Post) error {
-	if err := db.QueryRow(`
-		SELECT *
+	row, err := db.Query(`
+		SELECT COUNT(*)
 		FROM comments
-		WHERE post = ?
-	`, post.PostID).Scan(&post.CommentCount); err != nil {
+		WHERE postid = ?
+	`, post.PostID)
+	defer row.Close()
+
+	if err != nil {
 		return err
+	}
+	for row.Next() {
+		row.Scan(&post.CommentCount)
 	}
 	return err
 }
@@ -52,6 +58,7 @@ func GetCommentsByPostID(postid int, uid int) ([]models.Comment, error) {
 		WHERE postid = ?
 	`, postid)
 	defer row.Close()
+
 	if err != nil {
 		return comments, err
 	}

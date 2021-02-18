@@ -32,6 +32,7 @@ func GetCategories() ([]string, error) {
 		FROM categories
 	`)
 	defer row.Close()
+
 	if err != nil {
 		return categories, err
 	}
@@ -75,6 +76,7 @@ func getPostCategories(post *models.Post) error {
 		WHERE postcategories.postid = ?
 	`, post.PostID)
 	defer row.Close()
+
 	if err != nil {
 		return err
 	}

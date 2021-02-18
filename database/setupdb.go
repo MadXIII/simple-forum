@@ -47,7 +47,7 @@ func SetUp() {
 
 	categoryTable := `CREATE TABLE IF NOT EXISTS categories (
 		categoryid INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-		categoryname TEXT NOT NULL
+		categoryname TEXT NOT NULL UNIQUE
 	);`
 	createCategoryTable, err := db.Prepare(categoryTable)
 	errorhandle.CheckErr(err)
@@ -95,7 +95,7 @@ func SetUp() {
 	errorhandle.CheckErr(err)
 
 	sessionTable := `CREATE TABLE IF NOT EXISTS sessions (
-		sessionid INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+		sessionid STRING NOT NULL PRIMARY KEY,
 		userid INTEGER NOT NULL UNIQUE,
 		timecreated TIMESTAMP NOT NULL,
 		FOREIGN KEY (userid) REFERENCES users(userid)

@@ -14,7 +14,7 @@ func LikePost(w http.ResponseWriter, r *http.Request, data models.PageData) {
 		link := r.FormValue("link")
 		var err error
 
-		if (liked != "like" || liked != "dislike") || link == "" {
+		if postid == 0 || !(liked == "like" || liked == "dislike") || link == "" {
 			ErrorHandler(w, r, http.StatusBadRequest, "400 Bad Request")
 			return
 		}
@@ -35,20 +35,20 @@ func LikePost(w http.ResponseWriter, r *http.Request, data models.PageData) {
 
 func LikeComment(w http.ResponseWriter, r *http.Request, data models.PageData) {
 	if r.Method == http.MethodPost {
-		postid, _ := strconv.Atoi(r.FormValue("postid"))
+		commentid, _ := strconv.Atoi(r.FormValue("commentid"))
 		liked := r.FormValue("submit")
 		link := r.FormValue("link")
 		var err error
 
-		if (liked != "like" || liked != "dislike") || link == "" {
+		if commentid == 0 || !(liked == "like" || liked == "dislike") || link == "" {
 			ErrorHandler(w, r, http.StatusBadRequest, "400 Bad Request")
 			return
 		}
 
 		if liked == "like" {
-			err = database.LikeComment(data.User.UserID, postid)
+			err = database.LikeComment(data.User.UserID, commentid)
 		} else {
-			err = database.DislikeComment(data.User.UserID, postid)
+			err = database.DislikeComment(data.User.UserID, commentid)
 		}
 		if InternalError(w, r, err) {
 			return

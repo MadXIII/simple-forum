@@ -27,13 +27,21 @@ func CreateSession(newSession models.Session) error {
 func GetSession(sessionID string) (models.Session, error) {
 	var session models.Session
 
-	if err := db.QueryRow(`
+	row, err := db.Query(`
 		SELECT *
 		FROM sessions
 		WHERE sessionid = ?
-	`, sessionID).Scan(&session.SessionID, &session.UserID, &session.TimeCreated); err != nil {
+	`, sessionID)
+	defer row.Close()
+
+	if err != nil {
 		return session, err
+	}
+	for row.Next() {
+		row.Scan(&session.SessionID, &session.UserID, &session.TimeCreated)
 	}
 
 	return session, err
 }
+
+//QueryRow

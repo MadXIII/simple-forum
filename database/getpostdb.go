@@ -1,7 +1,6 @@
 package database
 
 import (
-	"fmt"
 	"forum/models"
 )
 
@@ -47,12 +46,19 @@ func GetPosts(uid int) ([]models.Post, error) {
 func GetPostByID(postid int, uid int) (models.Post, error) {
 	var post models.Post
 
-	if err := db.QueryRow(`
+	row, err := db.Query(`
 		SELECT *
 		FROM posts
 		WHERE postid = ?
-	`, postid).Scan(&post.PostID, &post.UserID, &post.Username, &post.Title, &post.Content, &post.ImageExist, &post.DateTime, &post.TimeString); err != nil {
+	`, postid)
+	defer row.Close()
+
+	if err != nil {
 		return post, err
+	}
+
+	for row.Next() {
+		row.Scan(&post.PostID, &post.UserID, &post.Username, &post.Title, &post.Content, &post.ImageExist, &post.DateTime, &post.TimeString)
 	}
 
 	err = getPostCategories(&post)
@@ -181,7 +187,6 @@ func GetLikedPostsByUserID(userid int) ([]models.Post, error) {
 	defer row.Close()
 
 	if err != nil {
-		fmt.Println("error!")
 		return posts, err
 	}
 	for row.Next() {

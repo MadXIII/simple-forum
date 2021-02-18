@@ -78,6 +78,8 @@ func CreatePost(w http.ResponseWriter, r *http.Request, data models.PageData) {
 				return
 			}
 		}
+		http.Redirect(w, r, fmt.Sprintf("/posts/id/%d", newPost.PostID), http.StatusSeeOther)
+
 	} else if r.Method == http.MethodGet {
 		InternalError(w, r, templ.ExecTemplate(w, "createpost.html", data))
 	} else {

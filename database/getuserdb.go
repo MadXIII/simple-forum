@@ -6,36 +6,60 @@ import (
 
 func GetUserByID(uid int) (models.User, error) {
 	var user models.User
-	if err := db.QueryRow(`
-		SELECT * 
+	row, err := db.Query(`
+		SELECT *
 		FROM users
 		WHERE userid = ?
-	`, uid).Scan(&user.UserID, &user.Username, &user.Hash, &user.Salt, &user.Email); err != nil {
+	`, uid)
+	defer row.Close()
+
+	if err != nil {
 		return user, err
 	}
+
+	for row.Next() {
+		row.Scan(&user.UserID, &user.Username, &user.Hash, &user.Salt, &user.Email)
+	}
+
 	return user, err
 }
 
 func GetUserByUsername(username string) (models.User, error) {
 	var user models.User
-	if err := db.QueryRow(`
-		SELECT * 
+	row, err := db.Query(`
+		SELECT *
 		FROM users
-		WHERE username = ?
-	`, username).Scan(&user.UserID, &user.Username, &user.Hash, &user.Salt, &user.Email); err != nil {
+		WHERE userid = ?
+	`, username)
+	defer row.Close()
+
+	if err != nil {
 		return user, err
 	}
+
+	for row.Next() {
+		row.Scan(&user.UserID, &user.Username, &user.Hash, &user.Salt, &user.Email)
+	}
+
 	return user, err
 }
 
 func GetUserByEmail(email string) (models.User, error) {
 	var user models.User
-	if err := db.QueryRow(`
-		SELECT * 
+	row, err := db.Query(`
+		SELECT *
 		FROM users
-		WHERE email = ?
-	`, email).Scan(&user.UserID, &user.Username, &user.Hash, &user.Salt, &user.Email); err != nil {
+		WHERE userid = ?
+	`, email)
+	defer row.Close()
+
+	if err != nil {
 		return user, err
 	}
+
+	for row.Next() {
+		row.Scan(&user.UserID, &user.Username, &user.Hash, &user.Salt, &user.Email)
+	}
+
 	return user, err
 }

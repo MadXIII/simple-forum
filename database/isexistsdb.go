@@ -8,9 +8,11 @@ func IsUsernameExists(username string) bool {
 	WHERE username = ?
 	`, username)
 	defer row.Close()
+
 	if err != nil {
 		return false
 	}
+
 	return row.Next()
 }
 
@@ -22,8 +24,10 @@ func IsEmailExists(email string) bool {
 	WHERE email = ?
 	`, email)
 	defer row.Close()
+
 	if err != nil {
 		return false
 	}
+
 	return row.Next()
 }
