@@ -1,6 +1,7 @@
 package database
 
 import (
+	"fmt"
 	"forum/models"
 )
 
@@ -29,7 +30,7 @@ func GetUserByUsername(username string) (models.User, error) {
 	row, err := db.Query(`
 		SELECT *
 		FROM users
-		WHERE userid = ?
+		WHERE username = ?
 	`, username)
 	defer row.Close()
 
@@ -40,7 +41,7 @@ func GetUserByUsername(username string) (models.User, error) {
 	for row.Next() {
 		row.Scan(&user.UserID, &user.Username, &user.Hash, &user.Salt, &user.Email)
 	}
-
+	fmt.Println(user)
 	return user, err
 }
 
@@ -49,7 +50,7 @@ func GetUserByEmail(email string) (models.User, error) {
 	row, err := db.Query(`
 		SELECT *
 		FROM users
-		WHERE userid = ?
+		WHERE email = ?
 	`, email)
 	defer row.Close()
 
