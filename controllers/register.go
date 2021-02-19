@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"forum/database"
 	"forum/models"
 	"forum/sessions"
@@ -66,9 +65,6 @@ func Register(w http.ResponseWriter, r *http.Request, data models.PageData) {
 		}
 		newUser.Salt = salt.String()
 		newUser.Hash = hash
-
-		fmt.Println(newUser.Hash)
-		fmt.Println(newUser.Salt)
 
 		err = database.CreateUser(&newUser)
 		if InternalError(w, r, err) {

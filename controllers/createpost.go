@@ -27,6 +27,20 @@ func CreatePost(w http.ResponseWriter, r *http.Request, data models.PageData) {
 		categories := r.Form["categories"]
 		title := r.FormValue("title")
 		content := r.FormValue("content")
+		categoryExist := make(map[string]bool)
+
+		for _, category := range data.Categories {
+			categoryExist[category] = true
+		}
+
+		for _, category := range categories {
+			if !categoryExist[category] {
+				data.Data = "Invalid category " + category
+				w.WriteHeader(http.StatusUnprocessableEntity)
+				InternalError(w, r, templ.ExecTemplate(w, "createpost.html", data))
+				return
+			}
+		}
 
 		if isEmpty(title) {
 			data.Data = "Title must not be empty"

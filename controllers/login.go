@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"forum/database"
 	"forum/models"
 	"forum/sessions"
@@ -18,7 +17,6 @@ func Login(w http.ResponseWriter, r *http.Request, data models.PageData) {
 	if r.Method == http.MethodPost {
 		username := r.FormValue("username")
 		password := r.FormValue("password")
-		fmt.Println(password)
 
 		usernameExists := database.IsUsernameExists(username)
 		emailExists := database.IsEmailExists(username)
@@ -35,8 +33,6 @@ func Login(w http.ResponseWriter, r *http.Request, data models.PageData) {
 				return
 			}
 			err = bcrypt.CompareHashAndPassword(user.Hash, []byte(password+user.Salt))
-			fmt.Println(user.Hash)
-			fmt.Println([]byte(password + user.Salt))
 			if err != nil {
 				data.Data = "Wrong password"
 				w.WriteHeader(http.StatusUnauthorized)

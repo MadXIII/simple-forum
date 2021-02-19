@@ -238,7 +238,7 @@ func getPostLikesDislikes(post *models.Post) error {
 	dislikes, err := db.Query(`
 		SELECT COUNT(*)
 		FROM postlikes
-		WHERE (postid = ? AND liked = 1)
+		WHERE (postid = ? AND liked = 0)
 	`, post.PostID)
 	defer dislikes.Close()
 
@@ -271,7 +271,7 @@ func getCommentLikesDislikes(comment *models.Comment) error {
 	dislikes, err := db.Query(`
 		SELECT COUNT(*)
 		FROM commentlikes
-		WHERE (commentid = ? AND liked = 1)
+		WHERE (commentid = ? AND liked = 0)
 	`, comment.CommentID)
 	defer dislikes.Close()
 

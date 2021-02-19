@@ -55,10 +55,10 @@ func SetUp() {
 	errorhandle.CheckErr(err)
 
 	forumCategories := []string{
-		"Sport",
-		"Movies",
-		"Music",
-		"Other",
+		"Club",
+		"Matches",
+		"Team",
+		"Transfers",
 	}
 	for _, category := range forumCategories {
 		err = CreateCategory(category)

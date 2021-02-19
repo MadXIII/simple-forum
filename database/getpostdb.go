@@ -10,6 +10,7 @@ func GetPosts(uid int) ([]models.Post, error) {
 	row, err := db.Query(`
 		SELECT *
 		FROM posts
+		ORDER BY date_time DESC
 	`)
 	defer row.Close()
 

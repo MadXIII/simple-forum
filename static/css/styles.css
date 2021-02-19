@@ -1,7 +1,10 @@
 body {
-    background-color: #E8ECEF;
+    background-color:#2a2a2a;
 }
 
+.bgColor {
+    background-color: #c70101;
+}
 .comment-form {
     margin-top: 1rem;
     margin-bottom: 1rem;
@@ -51,17 +54,18 @@ img{
     max-width: 100%;
 }
 
-/* .footer {
-	position: absolute;
-	text-align: center;
-	bottom: 0;
-	width: 100%;
-	height: 60px;
-	background-color: #1abc9c;
+h1 {
+    color: #fbffff;
 }
 
-.footer p {
-	margin-top: 11125px;
-	font-size: 12px;
-    color: #fff;
-} */
+.dataComment {
+    color: #fbffff;
+}
+
+.errorReg {
+    color: #fbffff;
+}
+
+.errorLog {
+    color: #fbffff;
+}

@@ -56,6 +56,7 @@ func GetCommentsByPostID(postid int, uid int) ([]models.Comment, error) {
 		SELECT *
 		FROM comments
 		WHERE postid = ?
+		ORDER BY date_time DESC
 	`, postid)
 	defer row.Close()
 

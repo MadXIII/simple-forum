@@ -21,7 +21,7 @@ func main() {
 
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8888"
+		port = "8080"
 	}
 
 	log.Println("Server is listening:", port)
