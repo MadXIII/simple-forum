@@ -42,8 +42,8 @@ func CreatePost(w http.ResponseWriter, r *http.Request, data models.PageData) {
 			}
 		}
 
-		if isEmpty(title) {
-			data.Data = "Title must not be empty"
+		if !isValidTitle(title) {
+			data.Data = "Title must be between 2-60 characters"
 			InternalError(w, r, templ.ExecTemplate(w, "createpost.html", data))
 			return
 		}
@@ -102,7 +102,18 @@ func CreatePost(w http.ResponseWriter, r *http.Request, data models.PageData) {
 }
 func isEmpty(text string) bool {
 	for _, r := range text {
-		if !(r <= ' ') {
+		if !(r <= 32) {
+			return false
+		}
+	}
+	return true
+}
+func isValidTitle(title string) bool {
+	if len(title) < 2 || len(title) > 60 {
+		return false
+	}
+	for _, r := range title {
+		if r <= 32 {
 			return false
 		}
 	}

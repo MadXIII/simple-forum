@@ -27,8 +27,8 @@ func Register(w http.ResponseWriter, r *http.Request, data models.PageData) {
 		usernameExists := database.IsUsernameExists(newUser.Username)
 		emailExists := database.IsEmailExists(newUser.Email)
 
-		if newUser.Username == "" {
-			data.Data = "Invalid username"
+		if !isValidUsername(newUser.Username) {
+			data.Data = "Username can contain letters, numbers, special characters and must be between 3-32 characters"
 			w.WriteHeader(http.StatusUnprocessableEntity)
 			InternalError(w, r, templ.ExecTemplate(w, "register.html", data))
 			return
@@ -52,7 +52,7 @@ func Register(w http.ResponseWriter, r *http.Request, data models.PageData) {
 			return
 		}
 		if !isValidPass(password) {
-			data.Data = "Password must have min 8 characters: at least 1 upper case, 1 lower case, 1 number"
+			data.Data = "Password must be between 8-32 characters: at least 1 upper case, 1 lower case, 1 number"
 			w.WriteHeader(http.StatusUnprocessableEntity)
 			InternalError(w, r, templ.ExecTemplate(w, "register.html", data))
 			return
@@ -84,7 +84,7 @@ func Register(w http.ResponseWriter, r *http.Request, data models.PageData) {
 }
 func isValidPass(pass string) bool {
 	var up, low, num bool
-	if len(pass) < 8 {
+	if len(pass) < 8 || len(pass) > 32 {
 		return false
 	}
 	for _, r := range pass {
@@ -99,4 +99,16 @@ func isValidPass(pass string) bool {
 		}
 	}
 	return up && low && num
+}
+
+func isValidUsername(username string) bool {
+	if len(username) < 3 || len(username) > 32 {
+		return false
+	}
+	for _, r := range username {
+		if r <= 32 {
+			return false
+		}
+	}
+	return true
 }
