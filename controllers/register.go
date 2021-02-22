@@ -9,7 +9,6 @@ import (
 	"regexp"
 	"unicode"
 
-	uuid "github.com/satori/go.uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -30,40 +29,38 @@ func Register(w http.ResponseWriter, r *http.Request, data models.PageData) {
 		if !isValidUsername(newUser.Username) {
 			data.Data = "Username can contain letters, numbers, special characters and must be between 3-32 characters"
 			w.WriteHeader(http.StatusUnprocessableEntity)
-			InternalError(w, r, templ.ExecTemplate(w, "register.html", data))
+			InternalError(w, r, templ.ExecuteTemplate(w, "register.html", data))
 			return
 		}
 		if usernameExists {
 			data.Data = "Username exists"
 			w.WriteHeader(http.StatusUnprocessableEntity)
-			InternalError(w, r, templ.ExecTemplate(w, "register.html", data))
+			InternalError(w, r, templ.ExecuteTemplate(w, "register.html", data))
 			return
 		}
 		if newUser.Email == "" || !regex.MatchString(newUser.Email) {
 			data.Data = "Invalid email"
 			w.WriteHeader(http.StatusUnprocessableEntity)
-			InternalError(w, r, templ.ExecTemplate(w, "register.html", data))
+			InternalError(w, r, templ.ExecuteTemplate(w, "register.html", data))
 			return
 		}
 		if emailExists {
 			data.Data = "Email exists"
 			w.WriteHeader(http.StatusUnprocessableEntity)
-			InternalError(w, r, templ.ExecTemplate(w, "register.html", data))
+			InternalError(w, r, templ.ExecuteTemplate(w, "register.html", data))
 			return
 		}
 		if !isValidPass(password) {
 			data.Data = "Password must be between 8-32 characters: at least 1 upper case, 1 lower case, 1 number"
 			w.WriteHeader(http.StatusUnprocessableEntity)
-			InternalError(w, r, templ.ExecTemplate(w, "register.html", data))
+			InternalError(w, r, templ.ExecuteTemplate(w, "register.html", data))
 			return
 		}
-		salt := uuid.NewV4()
 
-		hash, err := bcrypt.GenerateFromPassword([]byte(password+salt.String()), bcrypt.MinCost)
+		hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.MinCost)
 		if InternalError(w, r, err) {
 			return
 		}
-		newUser.Salt = salt.String()
 		newUser.Hash = hash
 
 		err = database.CreateUser(&newUser)
@@ -77,7 +74,7 @@ func Register(w http.ResponseWriter, r *http.Request, data models.PageData) {
 		http.Redirect(w, r, "/", http.StatusFound)
 
 	} else if r.Method == http.MethodGet {
-		InternalError(w, r, templ.ExecTemplate(w, "register.html", data))
+		InternalError(w, r, templ.ExecuteTemplate(w, "register.html", data))
 	} else {
 		ErrorHandler(w, r, http.StatusMethodNotAllowed, "405 Method Not Allowed")
 	}

@@ -5,8 +5,8 @@ import "forum/models"
 func CreateUser(newUser *models.User) error {
 	createUser, err := db.Prepare(`
 		INSERT INTO users
-		(username, hash, salt, email)
-		VALUES (?, ?, ?, ?);
+		(username, hash, email)
+		VALUES (?, ?, ?);
 	`)
 	if err != nil {
 		return err
@@ -15,7 +15,6 @@ func CreateUser(newUser *models.User) error {
 	res, err := createUser.Exec(
 		newUser.Username,
 		newUser.Hash,
-		newUser.Salt,
 		newUser.Email,
 	)
 	if err != nil {

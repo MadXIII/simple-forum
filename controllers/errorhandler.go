@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"forum/database"
 	"forum/models"
 	"forum/sessions"
@@ -10,6 +11,7 @@ import (
 
 func InternalError(w http.ResponseWriter, r *http.Request, err error) bool {
 	if err != nil {
+		fmt.Println(err)
 		ErrorHandler(w, r, http.StatusInternalServerError, "500 Internal Error")
 		return true
 	}
@@ -19,5 +21,5 @@ func ErrorHandler(w http.ResponseWriter, r *http.Request, status int, message st
 	w.WriteHeader(status)
 	user, _ := sessions.GetUser(w, r)
 	categories, _ := database.GetCategories()
-	templ.ExecTemplate(w, "errorhandler.html", models.PageData{message, categories, user, message})
+	templ.ExecuteTemplate(w, "errorhandler.html", models.PageData{message, categories, user, message})
 }

@@ -6,10 +6,9 @@ import (
 	"forum/models"
 	"forum/templ"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"os"
-	"regexp"
-	"strings"
 	"time"
 )
 
@@ -17,10 +16,8 @@ func CreatePost(w http.ResponseWriter, r *http.Request, data models.PageData) {
 	data.PageTitle = "Create Post"
 
 	if r.Method == http.MethodPost {
-		regex := regexp.MustCompile(`^.*\.(jpg|JPG|jpeg|JPEG|gif|GIF|png|PNG|svg|SVG)$`)
-
 		firstFile, fHeader, _ := r.FormFile("image")
-		if fHeader != nil {
+		if firstFile != nil {
 			defer firstFile.Close()
 		}
 
@@ -37,32 +34,57 @@ func CreatePost(w http.ResponseWriter, r *http.Request, data models.PageData) {
 			if !categoryExist[category] {
 				data.Data = "Invalid category " + category
 				w.WriteHeader(http.StatusUnprocessableEntity)
-				InternalError(w, r, templ.ExecTemplate(w, "createpost.html", data))
+				InternalError(w, r, templ.ExecuteTemplate(w, "createpost.html", data))
 				return
 			}
 		}
+		if isEmpty(title) {
+			data.Data = "Title must not be empty"
+			w.WriteHeader(http.StatusUnprocessableEntity)
+			InternalError(w, r, templ.ExecuteTemplate(w, "createpost.html", data))
+			return
+		}
 
-		if !isValidTitle(title) {
+		if !isValidLenOfTitle(title) {
 			data.Data = "Title must be between 2-60 characters"
-			InternalError(w, r, templ.ExecTemplate(w, "createpost.html", data))
+			w.WriteHeader(http.StatusUnprocessableEntity)
+			InternalError(w, r, templ.ExecuteTemplate(w, "createpost.html", data))
 			return
 		}
 		if isEmpty(content) {
 			data.Data = "Content must not be empty"
-			InternalError(w, r, templ.ExecTemplate(w, "createpost.html", data))
+			w.WriteHeader(http.StatusUnprocessableEntity)
+			InternalError(w, r, templ.ExecuteTemplate(w, "createpost.html", data))
 			return
 		}
-		if fHeader != nil {
-			if fHeader.Size > 20000000 {
+		if firstFile != nil {
+			imgData, err := ioutil.ReadAll(firstFile)
+			if err != nil {
+				data.Data = "Cannot upload image"
+				w.WriteHeader(http.StatusUnprocessableEntity)
+				InternalError(w, r, templ.ExecuteTemplate(w, "createpost.html", data))
+				return
+			}
+			if fHeader.Size > 20971520 {
 				data.Data = "File too large, limit size 20MB"
-				InternalError(w, r, templ.ExecTemplate(w, "createpost.html", data))
+				w.WriteHeader(http.StatusUnprocessableEntity)
+				InternalError(w, r, templ.ExecuteTemplate(w, "createpost.html", data))
 				return
 			}
-			if !regex.MatchString(fHeader.Filename) {
-				data.Data = "Invalid type, please upload jpg, jpeg, png, gif, svg"
-				InternalError(w, r, templ.ExecTemplate(w, "createpost.html", data))
-				return
+			firstFile.Seek(0, 0)
+			correctType := []string{"image/png", "image/gif", "image/jpeg"}
+			contType := http.DetectContentType(imgData)
+
+			for _, imgType := range correctType {
+				if imgType != contType {
+					data.Data = "Invalid type, please upload jpeg, png, gif"
+					InternalError(w, r, templ.ExecuteTemplate(w, "createpost.html", data))
+					w.WriteHeader(http.StatusUnprocessableEntity)
+					return
+				}
+				break
 			}
+
 		}
 		timeNow := time.Now()
 		loc, _ := time.LoadLocation("Asia/Almaty")
@@ -72,7 +94,7 @@ func CreatePost(w http.ResponseWriter, r *http.Request, data models.PageData) {
 			UserID:     data.User.UserID,
 			Username:   data.User.Username,
 			Title:      title,
-			Content:    strings.ReplaceAll(content, "\n", "<br>"),
+			Content:    content,
 			Categories: categories,
 			ImageExist: fHeader != nil,
 			DateTime:   timeNow,
@@ -95,7 +117,7 @@ func CreatePost(w http.ResponseWriter, r *http.Request, data models.PageData) {
 		http.Redirect(w, r, fmt.Sprintf("/posts/id/%d", newPost.PostID), http.StatusSeeOther)
 
 	} else if r.Method == http.MethodGet {
-		InternalError(w, r, templ.ExecTemplate(w, "createpost.html", data))
+		InternalError(w, r, templ.ExecuteTemplate(w, "createpost.html", data))
 	} else {
 		ErrorHandler(w, r, http.StatusMethodNotAllowed, "405 Method Not Allowed")
 	}
@@ -108,14 +130,10 @@ func isEmpty(text string) bool {
 	}
 	return true
 }
-func isValidTitle(title string) bool {
+
+func isValidLenOfTitle(title string) bool {
 	if len(title) < 2 || len(title) > 60 {
 		return false
-	}
-	for _, r := range title {
-		if r <= 32 {
-			return false
-		}
 	}
 	return true
 }

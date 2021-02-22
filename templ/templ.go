@@ -16,7 +16,7 @@ func SetUp() {
 	errorhandle.CheckErr(err)
 }
 
-// ExecTemplate - ...
-func ExecTemplate(wr io.Writer, name string, data interface{}) error {
+// ExecuteTemplate - ...
+func ExecuteTemplate(wr io.Writer, name string, data interface{}) error {
 	return tpl.ExecuteTemplate(wr, name, data)
 }

@@ -1,12 +1,12 @@
 {{ template "header.html" . }}
 
-div class="container mt-5">
+<div class="container mt-5">
     <h1 class="postTitle">{{ .Data.Post.Title }}</h1>
     <div class="row">
         <div class="col-sm-8">
             <div class="card">
                 <div class="card-body">
-                    <h5>{{ .Data.Post.Content }}</h5>
+                    <h5><pre>{{ .Data.Post.Content }}</pre></h5>
 
                     {{ if .Data.Post.ImageExist }}
                         <img src="/images/{{ .Data.Post.PostID }}" alt="">
@@ -34,10 +34,6 @@ div class="container mt-5">
                             <textarea name="text" class="form-control post-input" rows="4" required></textarea>
                         </div>
                         <input name="postid" value="{{ .Data.Post.PostID }}" hidden required>
-                        <div class="form-group">
-                            <label for="image">Image</label><br>
-                            <input type="file" name="image" accept=".jpg,.JPG,.png,.PNG,.gif,.GIF,.svg,.SVG"><br>
-                        </div>
                         <button type="submit" class="btn btn-dark">Send</button>
                     </form>
                 </div>
@@ -55,12 +51,8 @@ div class="container mt-5">
                         
                         <h5>{{ .Username }}</h5>
                         <p>{{ .TimeString }}</p>
-                        <p>{{ .Text }}</p>
+                        <p><pre>{{ .Text }}</pre></p>
 
-                        {{ if .ImageExist }}
-                            <img class="comment-img" src="/images/c{{ .CommentID }}" alt="">
-                        {{ end }}
-                        
                         <form action="/likecomment" method="POST">
                             <input type="text" name="commentid" value="{{ .CommentID }}" hidden required>
                             <input type="text" name="link" value="/posts/id/{{ .PostID }}#{{ .CommentID }}" hidden required>
@@ -74,6 +66,6 @@ div class="container mt-5">
         </div>
         {{ end }}
     {{ end }}
-</div>
+<div>
 
 {{ template "footer.html" }}

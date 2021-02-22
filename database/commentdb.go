@@ -7,8 +7,8 @@ import (
 func CreateComment(newComment *models.Comment) error {
 	comment, err := db.Prepare(`
 		INSERT INTO comments
-		(postid, username, text, imageexist, date_time, timestring)
-		VALUES (?, ?, ?, ?, ?, ?)
+		(postid, username, text, date_time, timestring)
+		VALUES (?, ?, ?, ?, ?)
 	`)
 	if err != nil {
 		return err
@@ -18,7 +18,6 @@ func CreateComment(newComment *models.Comment) error {
 		newComment.PostID,
 		newComment.Username,
 		newComment.Text,
-		newComment.ImageExist,
 		newComment.DateTime,
 		newComment.TimeString,
 	)
@@ -66,7 +65,7 @@ func GetCommentsByPostID(postid int, uid int) ([]models.Comment, error) {
 
 	for row.Next() {
 		var comment models.Comment
-		row.Scan(&comment.CommentID, &comment.PostID, &comment.Username, &comment.Text, &comment.ImageExist, &comment.DateTime, &comment.TimeString)
+		row.Scan(&comment.CommentID, &comment.PostID, &comment.Username, &comment.Text, &comment.DateTime, &comment.TimeString)
 		err = getCommentLikesDislikes(&comment)
 		if err != nil {
 			return comments, err

@@ -25,18 +25,18 @@ func Login(w http.ResponseWriter, r *http.Request, data models.PageData) {
 			if !usernameExists {
 				data.Data = "Invalid Username"
 				w.WriteHeader(http.StatusUnprocessableEntity)
-				InternalError(w, r, templ.ExecTemplate(w, "login.html", data))
+				InternalError(w, r, templ.ExecuteTemplate(w, "login.html", data))
 				return
 			}
 			user, err := database.GetUserByUsername(username)
 			if InternalError(w, r, err) {
 				return
 			}
-			err = bcrypt.CompareHashAndPassword(user.Hash, []byte(password+user.Salt))
+			err = bcrypt.CompareHashAndPassword(user.Hash, []byte(password))
 			if err != nil {
 				data.Data = "Wrong password"
 				w.WriteHeader(http.StatusUnauthorized)
-				InternalError(w, r, templ.ExecTemplate(w, "login.html", data))
+				InternalError(w, r, templ.ExecuteTemplate(w, "login.html", data))
 				return
 			}
 			err = sessions.CreateSession(user.UserID, w)
@@ -47,18 +47,18 @@ func Login(w http.ResponseWriter, r *http.Request, data models.PageData) {
 			if !emailExists {
 				data.Data = "Invalid email"
 				w.WriteHeader(http.StatusUnprocessableEntity)
-				InternalError(w, r, templ.ExecTemplate(w, "login.html", data))
+				InternalError(w, r, templ.ExecuteTemplate(w, "login.html", data))
 				return
 			}
 			user, err := database.GetUserByEmail(username)
 			if InternalError(w, r, err) {
 				return
 			}
-			err = bcrypt.CompareHashAndPassword(user.Hash, []byte(password+user.Salt))
+			err = bcrypt.CompareHashAndPassword(user.Hash, []byte(password))
 			if err != nil {
 				data.Data = "Wrong password"
 				w.WriteHeader(http.StatusUnauthorized)
-				InternalError(w, r, templ.ExecTemplate(w, "login.html", data))
+				InternalError(w, r, templ.ExecuteTemplate(w, "login.html", data))
 				return
 			}
 			err = sessions.CreateSession(user.UserID, w)
@@ -69,7 +69,7 @@ func Login(w http.ResponseWriter, r *http.Request, data models.PageData) {
 		http.Redirect(w, r, "/", http.StatusFound)
 
 	} else if r.Method == http.MethodGet {
-		InternalError(w, r, templ.ExecTemplate(w, "login.html", data))
+		InternalError(w, r, templ.ExecuteTemplate(w, "login.html", data))
 	} else {
 		ErrorHandler(w, r, http.StatusMethodNotAllowed, "405 Method Not Allowed")
 	}

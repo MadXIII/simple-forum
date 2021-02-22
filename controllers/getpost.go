@@ -23,7 +23,7 @@ func GetPosts(w http.ResponseWriter, r *http.Request, data models.PageData) {
 
 		data.PageTitle = "All Posts"
 		data.Data = postData{r.URL.Path, posts}
-		InternalError(w, r, templ.ExecTemplate(w, "posts.html", data))
+		InternalError(w, r, templ.ExecuteTemplate(w, "posts.html", data))
 	} else {
 		ErrorHandler(w, r, http.StatusMethodNotAllowed, "405 Method Not Allowed")
 	}
@@ -63,7 +63,7 @@ func GetPostByID(w http.ResponseWriter, r *http.Request, data models.PageData) {
 			Comments: comments,
 		}
 
-		InternalError(w, r, templ.ExecTemplate(w, "post.html", data))
+		InternalError(w, r, templ.ExecuteTemplate(w, "post.html", data))
 	} else {
 		ErrorHandler(w, r, http.StatusMethodNotAllowed, "405 Method Not Allowed")
 	}
@@ -94,7 +94,7 @@ func GetPostsByCategory(w http.ResponseWriter, r *http.Request, data models.Page
 
 		data.PageTitle = category
 		data.Data = postData{r.URL.Path, posts}
-		InternalError(w, r, templ.ExecTemplate(w, "posts.html", data))
+		InternalError(w, r, templ.ExecuteTemplate(w, "posts.html", data))
 	} else {
 		ErrorHandler(w, r, http.StatusMethodNotAllowed, "405 Method Not Allowed")
 	}
@@ -108,7 +108,7 @@ func GetMyPosts(w http.ResponseWriter, r *http.Request, data models.PageData) {
 		}
 		data.PageTitle = "My Posts"
 		data.Data = postData{r.URL.Path, posts}
-		InternalError(w, r, templ.ExecTemplate(w, "posts.html", data))
+		InternalError(w, r, templ.ExecuteTemplate(w, "posts.html", data))
 	} else {
 		ErrorHandler(w, r, http.StatusMethodNotAllowed, "405 Method Not Allowed")
 	}
@@ -124,7 +124,7 @@ func GetMyLikedPosts(w http.ResponseWriter, r *http.Request, data models.PageDat
 
 		data.PageTitle = "My Likes"
 		data.Data = postData{r.URL.Path, posts}
-		InternalError(w, r, templ.ExecTemplate(w, "posts.html", data))
+		InternalError(w, r, templ.ExecuteTemplate(w, "posts.html", data))
 
 	} else {
 		ErrorHandler(w, r, http.StatusMethodNotAllowed, "405 Method Not Allowed")

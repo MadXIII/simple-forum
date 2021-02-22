@@ -6,7 +6,6 @@ import (
 
 type User struct {
 	UserID   int
-	Salt     string
 	Hash     []byte
 	Username string
 	Email    string
@@ -44,7 +43,6 @@ type Comment struct {
 	PostID     int
 	Username   string
 	Text       string
-	ImageExist bool
 	DateTime   time.Time
 	TimeString string
 	Like       int

@@ -1,7 +1,6 @@
 package database
 
 import (
-	"fmt"
 	"forum/models"
 )
 
@@ -19,7 +18,7 @@ func GetUserByID(uid int) (models.User, error) {
 	}
 
 	for row.Next() {
-		row.Scan(&user.UserID, &user.Username, &user.Hash, &user.Salt, &user.Email)
+		row.Scan(&user.UserID, &user.Username, &user.Hash, &user.Email)
 	}
 
 	return user, err
@@ -39,9 +38,8 @@ func GetUserByUsername(username string) (models.User, error) {
 	}
 
 	for row.Next() {
-		row.Scan(&user.UserID, &user.Username, &user.Hash, &user.Salt, &user.Email)
+		row.Scan(&user.UserID, &user.Username, &user.Hash, &user.Email)
 	}
-	fmt.Println(user)
 	return user, err
 }
 
@@ -59,7 +57,7 @@ func GetUserByEmail(email string) (models.User, error) {
 	}
 
 	for row.Next() {
-		row.Scan(&user.UserID, &user.Username, &user.Hash, &user.Salt, &user.Email)
+		row.Scan(&user.UserID, &user.Username, &user.Hash, &user.Email)
 	}
 
 	return user, err
